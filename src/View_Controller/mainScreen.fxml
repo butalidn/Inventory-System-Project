@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="463.0" prefWidth="963.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View_Controller.mainScreenController">
+<AnchorPane prefHeight="463.0" prefWidth="991.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View_Controller.mainScreenController">
    <children>
       <AnchorPane layoutX="32.0" layoutY="91.0">
          <children>
@@ -30,7 +30,7 @@
       <TextField fx:id="partsTextField" layoutX="217.0" layoutY="86.0" onAction="#searchPartTextFieldTyped" prefHeight="26.0" prefWidth="159.0" promptText="Search by Part ID or Name" />
       <HBox layoutX="2.0" layoutY="117.0" prefHeight="209.0" prefWidth="963.0" spacing="10.0">
          <children>
-            <TableView fx:id="partsTableView" prefHeight="209.0" prefWidth="429.0">
+            <TableView fx:id="partsTableView" prefHeight="209.0" prefWidth="451.0">
                <columns>
                   <TableColumn fx:id="partIDCol" prefWidth="75.0" text="Part ID" />
                   <TableColumn fx:id="partNameCol" prefWidth="75.0" text="Part Name" />
@@ -39,7 +39,7 @@
                </columns>
             </TableView>
             <Region prefHeight="209.0" prefWidth="104.0" />
-            <TableView fx:id="productsTableView" prefHeight="209.0" prefWidth="490.0">
+            <TableView fx:id="productsTableView" prefHeight="209.0" prefWidth="506.0">
               <columns>
                 <TableColumn fx:id="productIDCol" prefWidth="75.0" text="Product ID" />
                 <TableColumn fx:id="productNameCol" prefWidth="120.43643188476562" text="Product Name" />

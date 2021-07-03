@@ -10,19 +10,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class addProductScreenController implements Initializable {
 
+    @FXML private Label addProductWarningLabel;
     @FXML private TableColumn<Part, Integer> partIDCol;
     @FXML private TableColumn<Part, String> partNameCol;
     @FXML private TableColumn<Part, Integer> invCol;
@@ -46,14 +45,12 @@ public class addProductScreenController implements Initializable {
     @FXML private TableView<Part> addProductAssociatedTableView;
 
     private Inventory inventory = null;
-    private int productID;
     private ObservableList<Part> associatedParts;
     //private Product selectedProduct;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         inventory = mainScreenController.initInventory();
-        productID = mainScreenController.getProductAutoID();
         associatedParts = FXCollections.observableArrayList();
         //selectedProduct = mainScreenController.getSelectedProduct();
 
@@ -65,6 +62,7 @@ public class addProductScreenController implements Initializable {
         associatedNameCol.setCellValueFactory(new PropertyValueFactory<Part, String>("name"));
         associatedInvCol.setCellValueFactory(new PropertyValueFactory<Part, Integer>("stock"));
         associatedPriceCol.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
+        addProductWarningLabel.setText("");
 
         addProductTableView.setItems(inventory.getAllParts());
         /*if (selectedProduct.getAllAssociatedParts().size() != 0) {
@@ -74,52 +72,95 @@ public class addProductScreenController implements Initializable {
 
     /** Handles when add product button is clicked. */
     public void addProductAddPartClicked(ActionEvent actionEvent) {
-        /* selectedProduct.addAssociatedPart((Part) addProductTableView.getSelectionModel().getSelectedItem());
-         */
-        associatedParts.add(addProductTableView.getSelectionModel().getSelectedItem());
-        addProductAssociatedTableView.setItems(associatedParts);
+        if (!(addProductTableView.getSelectionModel().getSelectedItems().isEmpty())) {
+            associatedParts.add(addProductTableView.getSelectionModel().getSelectedItem());
+            addProductAssociatedTableView.setItems(associatedParts);
+        }
     }
 
     /** Handles when remove product button is clicked. */
     public void addProductRemoveClicked(ActionEvent actionEvent) {
+        if (!(addProductAssociatedTableView.getSelectionModel().getSelectedItems().isEmpty())) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Remove Part");
+            alert.setContentText("Do you want to remove this part?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.get() == ButtonType.OK) {
+                associatedParts.remove(addProductTableView.getSelectionModel().getSelectedItem());
+            }
+        }
     }
 
     /** Handles when save product button is clicked. */
-    public void addProductSaveClicked(ActionEvent actionEvent) {
-        boolean filledOut = false;
+    public void addProductSaveClicked(ActionEvent actionEvent) throws IOException {
+        String warning = "";
+        boolean validData = true;
+        String name = "";
+        int inv = 0;
+        double price = 0;
+        int min = 0;
+        int max = 0;
 
-        if (!(addProductNameTextField.getText().equals("") ||
-                addProductInvTextField.getText().equals("") ||
-                addProductPriceTextField.getText().equals("") ||
-                addProductMaxTextField.getText().equals("") ||
-                addProductMinTextField.getText().equals(""))) {
-            filledOut = true;
+        if (addProductNameTextField.getText().trim().isEmpty()) {
+            warning += "Exception: No data in name field\n";
+            validData = false;
         }
         else {
-            System.out.println("Fill out the form.");
+            name = addProductNameTextField.getText();
         }
         try {
-            if (filledOut) {
-                Product saveProduct = new Product(
-                        productID ,
-                        addProductNameTextField.getText(),
-                        Double.parseDouble(addProductPriceTextField.getText()),
-                        Integer.parseInt(addProductInvTextField.getText()),
-                        Integer.parseInt(addProductMinTextField.getText()),
-                        Integer.parseInt(addProductMaxTextField.getText()));
-                inventory.addProduct(saveProduct);
-                for (Part part: associatedParts) {
-                    saveProduct.addAssociatedPart(part);
-                }
-                Parent mainParent = FXMLLoader.load(getClass().getResource("mainScreen.fxml"));
-                Stage stage = (Stage) (((Node) actionEvent.getSource()).getScene().getWindow());
-                Scene mainScene = new Scene(mainParent);
-                stage.setTitle("Inventory Management System");
-                stage.setScene(mainScene);
-                stage.show();
+            inv = Integer.parseInt(addProductInvTextField.getText());
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Inv is not an integer\n";
+        }
+        try {
+            price = Double.parseDouble(addProductPriceTextField.getText());
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Price is not a double\n";
+        }
+        try {
+            max = Integer.parseInt(addProductMaxTextField.getText());
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Max is not an integer\n";
+        }
+        try {
+            min = Integer.parseInt(addProductMinTextField.getText());
+            if (max < min) {
+                warning += "Error: Min must be smaller than Max\n";
+                validData = false;
             }
-        } catch (Exception e) {
-            System.out.println("Whoops try again");
+            if ((inv > max) || (inv < min )) {
+                warning += "Error: Inv must be larger than Min\nand smaller than Max\n";
+                validData = false;
+            }
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Min is not an integer\n";
+        }
+
+        addProductWarningLabel.setText(warning);
+        if (validData) {
+            Product saveProduct = new Product(
+                    mainScreenController.getProductAutoID() ,
+                    name,
+                    price,
+                    inv,
+                    min,
+                    max);
+            inventory.addProduct(saveProduct);
+            for (Part part: associatedParts) {
+                saveProduct.addAssociatedPart(part);
+            }
+            Parent mainParent = FXMLLoader.load(getClass().getResource("mainScreen.fxml"));
+            Stage stage = (Stage) (((Node) actionEvent.getSource()).getScene().getWindow());
+            Scene mainScene = new Scene(mainParent);
+            stage.setTitle("Inventory Management System");
+            stage.setScene(mainScene);
+            stage.show();
         }
     }
 
@@ -135,6 +176,7 @@ public class addProductScreenController implements Initializable {
 
     public void addProductSearchFieldTyped() {
         String query = addProductSearchField.getText();
+        Alert alert = new Alert(Alert.AlertType.WARNING);
 
         ObservableList<Part> searchedParts = inventory.lookupPart(query);
         if (searchedParts.size() == 0) {
@@ -143,13 +185,19 @@ public class addProductScreenController implements Initializable {
                 if (inventory.lookupPart(searchID) != null) {
                     searchedParts.add(inventory.lookupPart(searchID));
                     addProductTableView.setItems(inventory.getAllParts());
-                    addProductTableView.getSelectionModel().select(searchID - 1);
+                    addProductTableView.getSelectionModel().select(inventory.lookupPart(searchID));
                 }
                 else {
-                    System.out.println("Error: part not found");
+                    alert.setTitle("Part Not Found");
+                    alert.setContentText("Your searched part was not found");
+                    alert.setHeaderText("Error");
+                    Optional<ButtonType> result = alert.showAndWait();
                 }
             } catch (Exception e) {
-                System.out.println("Error: part not found");
+                alert.setTitle("Part Not Found");
+                alert.setContentText("Your searched part was not found");
+                alert.setHeaderText("Error");
+                Optional<ButtonType> result = alert.showAndWait();
             }
         }
         else {

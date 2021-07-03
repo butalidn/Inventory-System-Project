@@ -11,16 +11,16 @@ public class Inventory {
     public Inventory() {
         allParts = FXCollections.observableArrayList();
         allProducts = FXCollections.observableArrayList();
-        this.addPart(new InHousePart(mainScreenController.getPartAutoID(),"Tire", 39.99, 50, 1, 1,2));
-        this.addPart(new InHousePart(mainScreenController.getPartAutoID(),"Hood", 299.00, 20, 1, 1,2));
-        this.addPart(new OutsourcedPart(mainScreenController.getPartAutoID(),"Bolt",1.99 , 1000, 30, 1,"Ace Hardware"));
-        this.addPart(new OutsourcedPart(mainScreenController.getPartAutoID(),"Nail", 1.50, 23, 1, 1,"Home Depot"));
-        this.addPart(new OutsourcedPart(mainScreenController.getPartAutoID(),"Ball", 3, 500, 1, 1,"Dick's Sporting Goods"));
+        this.addPart(new InHousePart(mainScreenController.getPartAutoID(),"Tire", 39.99, 32, 20, 50,2));
+        this.addPart(new InHousePart(mainScreenController.getPartAutoID(),"Hood", 299.00, 25, 10, 40,2));
+        this.addPart(new OutsourcedPart(mainScreenController.getPartAutoID(),"Bolt",1.99 , 1000, 30, 1500,"Ace Hardware"));
+        this.addPart(new OutsourcedPart(mainScreenController.getPartAutoID(),"Nail", 1.50, 1500, 1000, 2500,"Home Depot"));
+        this.addPart(new OutsourcedPart(mainScreenController.getPartAutoID(),"Ball", 3, 50, 25, 100,"Dick's Sporting Goods"));
         this.addProduct(new Product(mainScreenController.getProductAutoID(),"Car", 3999.99, 7, 2, 14));
-        this.addProduct(new Product(mainScreenController.getProductAutoID(),"Bike", 150.00, 25, 2, 14));
-        this.addProduct(new Product(mainScreenController.getProductAutoID(),"House", 10000, 4, 2, 14));
-        this.addProduct(new Product(mainScreenController.getProductAutoID(),"Phone", 499, 45, 2, 14));
-        this.addProduct(new Product(mainScreenController.getProductAutoID(),"Desk", 149.99, 10, 2, 14));
+        this.addProduct(new Product(mainScreenController.getProductAutoID(),"Bike", 150.00, 25, 2, 50));
+        this.addProduct(new Product(mainScreenController.getProductAutoID(),"House", 10000, 4, 2, 10));
+        this.addProduct(new Product(mainScreenController.getProductAutoID(),"Phone", 499, 45, 10, 100));
+        this.addProduct(new Product(mainScreenController.getProductAutoID(),"Desk", 149.99, 40, 40, 45));
     }
 
     public void addPart(Part newPart) {

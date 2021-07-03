@@ -87,15 +87,17 @@ public class mainScreenController implements Initializable {
 
     /** Handles when add part button is clicked. */
     public void modifyPartClicked(ActionEvent actionEvent) throws IOException {
-        dataInit = inventory;
-        selectedPart = partsTableView.getSelectionModel().getSelectedItem();
-        partIndex = partsTableView.getSelectionModel().getSelectedIndex();
-        Parent modifyPartParent = FXMLLoader.load(getClass().getResource("modifyPartScreen.fxml"));
-        Stage stage = (Stage) (((Node)actionEvent.getSource()).getScene().getWindow());
-        Scene modifyPartScene = new Scene(modifyPartParent);
-        stage.setTitle("Modify Part");
-        stage.setScene(modifyPartScene);
-        stage.show();
+        if (!(partsTableView.getSelectionModel().getSelectedIndex() < 0)) {
+            dataInit = inventory;
+            selectedPart = partsTableView.getSelectionModel().getSelectedItem();
+            partIndex = partsTableView.getSelectionModel().getSelectedIndex();
+            Parent modifyPartParent = FXMLLoader.load(getClass().getResource("modifyPartScreen.fxml"));
+            Stage stage = (Stage) (((Node) actionEvent.getSource()).getScene().getWindow());
+            Scene modifyPartScene = new Scene(modifyPartParent);
+            stage.setTitle("Modify Part");
+            stage.setScene(modifyPartScene);
+            stage.show();
+        }
     }
 
     /** Handles when add part button is clicked. */
@@ -108,8 +110,10 @@ public class mainScreenController implements Initializable {
 
             if (result.get() == ButtonType.OK) {
                 (inventory.getAllParts()).remove(partsTableView.getSelectionModel().getSelectedItem());
-                this.searchPartTextFieldTyped();
+                partsTextField.setText("");
+                searchPartTextFieldTyped();
             }
+
         }
     }
 
@@ -127,20 +131,23 @@ public class mainScreenController implements Initializable {
 
     /** Handles when modify part button is clicked. */
     public void modifyProductClicked(ActionEvent actionEvent) throws IOException {
-        dataInit = inventory;
-        selectedProduct = productsTableView.getSelectionModel().getSelectedItem();
-        productIndex = productsTableView.getSelectionModel().getSelectedIndex();
-        Parent modifyProductParent = FXMLLoader.load(getClass().getResource("modifyProductScreen.fxml"));
-        Stage stage = (Stage) (((Node)actionEvent.getSource()).getScene().getWindow());
-        Scene modifyProductScene = new Scene(modifyProductParent);
-        stage.setTitle("Modify Product");
-        stage.setScene(modifyProductScene);
-        stage.show();
+        if (!(productsTableView.getSelectionModel().getSelectedIndex() < 0)) {
+            dataInit = inventory;
+            selectedProduct = productsTableView.getSelectionModel().getSelectedItem();
+            productIndex = productsTableView.getSelectionModel().getSelectedIndex();
+            Parent modifyProductParent = FXMLLoader.load(getClass().getResource("modifyProductScreen.fxml"));
+            Stage stage = (Stage) (((Node) actionEvent.getSource()).getScene().getWindow());
+            Scene modifyProductScene = new Scene(modifyProductParent);
+            stage.setTitle("Modify Product");
+            stage.setScene(modifyProductScene);
+            stage.show();
+        }
     }
 
     /** Handles when delete product button is clicked. */
     public void deleteProductClicked(ActionEvent actionEvent) throws IOException {
         selectedProduct = productsTableView.getSelectionModel().getSelectedItem();
+        warningLabel.setText("");
         if (!(productsTableView.getSelectionModel().getSelectedItems().isEmpty())) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Delete Product");
@@ -153,7 +160,8 @@ public class mainScreenController implements Initializable {
             else {
                 if (result.get() == ButtonType.OK) {
                     (inventory.getAllProducts()).remove(productsTableView.getSelectionModel().getSelectedItem());
-                    this.searchProductTextFieldTyped();
+                    productsTextField.setText("");
+                    searchProductTextFieldTyped();
                 }
             }
         }
@@ -199,47 +207,70 @@ public class mainScreenController implements Initializable {
 
     public void searchPartTextFieldTyped() {
         String query = partsTextField.getText();
+        Alert alert = new Alert(Alert.AlertType.WARNING);
 
-        ObservableList<Part> searchedParts = inventory.lookupPart(query);
-        if (searchedParts.size() == 0) {
-            try {
-                int searchID = Integer.parseInt(query);
-                if (inventory.lookupPart(searchID) != null) {
-                    searchedParts.add(inventory.lookupPart(searchID));
-                    partsTableView.setItems(inventory.getAllParts());
-                    partsTableView.getSelectionModel().select(searchID - 1);
+        if (inventory.getAllParts().size() != 0) {
+            ObservableList<Part> searchedParts = inventory.lookupPart(query);
+            if (searchedParts.size() == 0) {
+                try {
+                    int searchID = Integer.parseInt(query);
+                    if (inventory.lookupPart(searchID) != null) {
+                        searchedParts.add(inventory.lookupPart(searchID));
+                        partsTableView.setItems(inventory.getAllParts());
+                        partsTableView.getSelectionModel().select(inventory.lookupPart(searchID));
+                    } else {
+                        alert.setTitle("Part Not Found");
+                        alert.setContentText("Your searched part was not found");
+                        alert.setHeaderText("Error");
+                        Optional<ButtonType> result = alert.showAndWait();
+                    }
+                } catch (Exception e) {
+                    alert.setTitle("Part Not Found");
+                    alert.setContentText("Your searched part was not found");
+                    alert.setHeaderText("Error");
+                    Optional<ButtonType> result = alert.showAndWait();
                 }
-                else {
-                    System.out.println("Error: part not found");
-                }
-            } catch (Exception e) {
-                System.out.println("Error: part not found");
+            } else {
+                partsTableView.setItems(searchedParts);
             }
         }
         else {
-            partsTableView.setItems(searchedParts);
+            partsTableView.getItems().clear();
         }
     }
 
     public void searchProductTextFieldTyped() {
         String query = productsTextField.getText();
+        Alert alert = new Alert(Alert.AlertType.WARNING);
 
-        ObservableList<Product> searchedProducts = inventory.lookupProduct(query);
-        if (searchedProducts.size() == 0) {
-            try {
-                int searchID = Integer.parseInt(query);
-                if (inventory.lookupProduct(searchID) != null) {
-                    searchedProducts.add(inventory.lookupProduct(searchID));
-                    productsTableView.setItems(inventory.getAllProducts());
-                    productsTableView.getSelectionModel().select(searchID - 1);
-                } else {
-                    System.out.println("Error: product not found");
+        if (inventory.getAllProducts().size() != 0) {
+            ObservableList<Product> searchedProducts = inventory.lookupProduct(query);
+            if (searchedProducts.size() == 0) {
+                try {
+                    int searchID = Integer.parseInt(query);
+                    if (inventory.lookupProduct(searchID) != null) {
+                        searchedProducts.add(inventory.lookupProduct(searchID));
+                        productsTableView.setItems(inventory.getAllProducts());
+                        productsTableView.getSelectionModel().select(inventory.lookupProduct(searchID));
+                    } else {
+                        System.out.println("Error: product not found");
+                        alert.setTitle("Product Not Found");
+                        alert.setContentText("Your searched product was not found");
+                        alert.setHeaderText("Error");
+                        Optional<ButtonType> result = alert.showAndWait();
+                    }
+                } catch (Exception e) { //This is where the error is being caught. Takes input and work with parse
+                    alert.setTitle("Product Not Found");
+                    alert.setContentText("Your searched product was not found");
+                    alert.setHeaderText("Error");
+                    Optional<ButtonType> result = alert.showAndWait();
                 }
-            } catch (Exception e) {
-                System.out.println("Error: product not found");
+            } else {
+                productsTableView.setItems(searchedProducts);
             }
-        } else {
-            productsTableView.setItems(searchedProducts);
+        }
+        else {
+            productsTableView.getItems().clear();
         }
     }
 }

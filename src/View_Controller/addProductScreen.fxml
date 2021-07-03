@@ -62,5 +62,10 @@
       <Button fx:id="addProductRemoveButton" layoutX="691.0" layoutY="555.0" mnemonicParsing="false" onAction="#addProductRemoveClicked" text="Remove Associated Part" />
       <Button fx:id="addProductSaveButton" layoutX="691.0" layoutY="598.0" mnemonicParsing="false" onAction="#addProductSaveClicked" text="Save" />
       <Button fx:id="addProductCancelButton" layoutX="783.0" layoutY="598.0" mnemonicParsing="false" onAction="#addProductCancelClicked" text="Cancel" />
+      <Label fx:id="addProductWarningLabel" layoutX="44.0" layoutY="433.0" prefHeight="190.0" prefWidth="371.0" text="Label" textFill="RED">
+         <font>
+            <Font name="System Bold" size="12.218181610107422" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

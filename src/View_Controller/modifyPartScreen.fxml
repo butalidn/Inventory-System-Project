@@ -46,5 +46,10 @@
             </VBox>
          </children>
       </HBox>
+      <Label fx:id="modifyPartWarningLabel" layoutX="74.0" layoutY="368.0" prefHeight="164.0" prefWidth="285.0" text="Label" textFill="RED">
+         <font>
+            <Font name="System Bold" size="12.218181610107422" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

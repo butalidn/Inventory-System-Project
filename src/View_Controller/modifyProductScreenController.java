@@ -16,9 +16,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class modifyProductScreenController implements Initializable {
+    @FXML private Label modifyProductWarningLabel;
     @FXML private TextField modifyProductIDTextField;
     @FXML private TextField modifyProductNameTextField;
     @FXML private TextField modifyProductInvTextField;
@@ -43,12 +45,23 @@ public class modifyProductScreenController implements Initializable {
 
     private Inventory inventory = null;
     private Product selectedProduct;
-    //private ObservableList<Part> associatedParts;
+    private Product tempProduct;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         inventory = mainScreenController.initInventory();
         selectedProduct = mainScreenController.getSelectedProduct();
+        tempProduct = new Product(
+                selectedProduct.getId(),
+                selectedProduct.getName(),
+                selectedProduct.getPrice(),
+                selectedProduct.getStock(),
+                selectedProduct.getMin(),
+                selectedProduct.getMax()
+        );
+        for (Part part: selectedProduct.getAllAssociatedParts()) {
+            tempProduct.addAssociatedPart(part);
+        }
 
         modifyProductIDTextField.setText(String.valueOf(mainScreenController.getSelectedProduct().getId()));
         modifyProductNameTextField.setText(String.valueOf(mainScreenController.getSelectedProduct().getName()));
@@ -67,41 +80,104 @@ public class modifyProductScreenController implements Initializable {
         associatedPriceCol.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
 
         modifyProductTableView.setItems(inventory.getAllParts());
-        modifyProductAssociatedTableView.setItems(selectedProduct.getAllAssociatedParts());
+        modifyProductAssociatedTableView.setItems(tempProduct.getAllAssociatedParts());
+
+        modifyProductWarningLabel.setText("");
     }
 
     /** Handles when add product button is clicked */
     public void modifyProductAddClicked(ActionEvent actionEvent) {
-        selectedProduct.addAssociatedPart((Part)modifyProductTableView.getSelectionModel().getSelectedItem());
-        modifyProductAssociatedTableView.setItems(selectedProduct.getAllAssociatedParts());
+        if (!(modifyProductTableView.getSelectionModel().getSelectedItems().isEmpty())) {
+            tempProduct.addAssociatedPart((Part) modifyProductTableView.getSelectionModel().getSelectedItem());
+            modifyProductAssociatedTableView.setItems(tempProduct.getAllAssociatedParts());
+        }
     }
 
     /** Handles when remove product button is clicked */
     public void modifyProductRemoveClicked(ActionEvent actionEvent) {
-        selectedProduct.deleteAssociatedPart((Part)modifyProductAssociatedTableView.getSelectionModel().getSelectedItem());
+        if (!(modifyProductAssociatedTableView.getSelectionModel().getSelectedItems().isEmpty())) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Remove Part");
+            alert.setContentText("Do you want to remove this part?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.get() == ButtonType.OK) {
+                tempProduct.getAllAssociatedParts().remove(modifyProductAssociatedTableView.getSelectionModel().getSelectedItem());
+            }
+        }
     }
 
     /** Handles when save product button is clicked */
     public void modifyProductSaveClicked(ActionEvent actionEvent) throws IOException {
-        Product newProduct;
-        newProduct = new Product(
-                    selectedProduct.getId(),
-                    modifyProductNameTextField.getText(),
-                    Double.parseDouble(modifyProductPriceTextField.getText()),
-                    Integer.parseInt(modifyProductInvTextField.getText()),
-                    Integer.parseInt(modifyProductMinTextField.getText()),
-                    Integer.parseInt(modifyProductMaxTextField.getText()));
-        inventory.updateProduct(mainScreenController.getProductIndex(), newProduct);
-        for (Part part: selectedProduct.getAllAssociatedParts()) {
-            newProduct.addAssociatedPart(part);
+        String warning = "";
+        boolean validData = true;
+        String name = "";
+        int inv = 0;
+        double price = 0;
+        int min = 0;
+        int max = 0;
+
+        if (modifyProductNameTextField.getText().trim().isEmpty()) {
+            warning += "Exception: No data in name field\n";
+            validData = false;
+        }
+        else {
+            name = modifyProductNameTextField.getText();
+        }
+        try {
+            inv = Integer.parseInt(modifyProductInvTextField.getText());
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Inv is not an integer\n";
+        }
+        try {
+            price = Double.parseDouble(modifyProductPriceTextField.getText());
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Price is not a double\n";
+        }
+        try {
+            max = Integer.parseInt(modifyProductMaxTextField.getText());
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Max is not an integer\n";
+        }
+        try {
+            min = Integer.parseInt(modifyProductMinTextField.getText());
+            if (max < min) {
+                warning += "Error: Min must be smaller than Max\n";
+                validData = false;
+            }
+            if ((inv > max) || (inv < min )) {
+                warning += "Error: Inv must be larger than Min\nand smaller than Max\n";
+                validData = false;
+            }
+        } catch (NumberFormatException e) {
+            validData = false;
+            warning += "Exception: Min is not an integer\n";
         }
 
-        Parent mainParent = FXMLLoader.load(getClass().getResource("mainScreen.fxml"));
-        Stage stage = (Stage) (((Node) actionEvent.getSource()).getScene().getWindow());
-        Scene mainScene = new Scene(mainParent);
-        stage.setTitle("Inventory Management System");
-        stage.setScene(mainScene);
-        stage.show();
+        modifyProductWarningLabel.setText(warning);
+        if (validData) {
+            Product newProduct;
+            newProduct = new Product(
+                    selectedProduct.getId(),
+                    name,
+                    price,
+                    inv,
+                    min,
+                    max);
+            inventory.updateProduct(mainScreenController.getProductIndex(), newProduct);
+            for (Part part: tempProduct.getAllAssociatedParts()) {
+                newProduct.addAssociatedPart(part);
+            }
+            Parent mainParent = FXMLLoader.load(getClass().getResource("mainScreen.fxml"));
+            Stage stage = (Stage) (((Node) actionEvent.getSource()).getScene().getWindow());
+            Scene mainScene = new Scene(mainParent);
+            stage.setTitle("Inventory Management System");
+            stage.setScene(mainScene);
+            stage.show();
+        }
     }
 
     /** Handles when cancel button is clicked */
@@ -112,5 +188,36 @@ public class modifyProductScreenController implements Initializable {
         stage.setTitle("Inventory Management System");
         stage.setScene(mainScene);
         stage.show();
+    }
+
+    public void modifyProductSearchField() {
+        String query = modifyProductSearchField.getText();
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+
+        ObservableList<Part> searchedParts = inventory.lookupPart(query);
+        if (searchedParts.size() == 0) {
+            try {
+                int searchID = Integer.parseInt(query);
+                if (inventory.lookupPart(searchID) != null) {
+                    searchedParts.add(inventory.lookupPart(searchID));
+                    modifyProductTableView.setItems(inventory.getAllParts());
+                    modifyProductTableView.getSelectionModel().select(inventory.lookupPart(searchID));
+                }
+                else {
+                    alert.setTitle("Part Not Found");
+                    alert.setContentText("Your searched part was not found");
+                    alert.setHeaderText("Error");
+                    Optional<ButtonType> result = alert.showAndWait();
+                }
+            } catch (Exception e) {
+                alert.setTitle("Part Not Found");
+                alert.setContentText("Your searched part was not found");
+                alert.setHeaderText("Error");
+                Optional<ButtonType> result = alert.showAndWait();
+            }
+        }
+        else {
+            modifyProductTableView.setItems(searchedParts);
+        }
     }
 }
