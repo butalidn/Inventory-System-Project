@@ -9,3 +9,9 @@ using the provided search bars.
 The project focused on understanding inheritance, abstract and concrete classes, instance and static variables, and instance and static methods.
 
 ![Program Main Screen](https://user-images.githubusercontent.com/69161658/172481511-35b4c0e7-b243-41a4-b831-8d5cbde28d01.png)
+
+
+![Product Screen](https://user-images.githubusercontent.com/69161658/172481633-39b1cf4c-d2cd-40f0-b64e-34e299980d0d.png)
+
+
+![Part Screen](https://user-images.githubusercontent.com/69161658/172481661-9bee6470-2979-4590-b04d-c57659bd5d7f.png)
