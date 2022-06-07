@@ -7,3 +7,5 @@ The program also handles expections by displaying error messages for scenarios s
 using the provided search bars.
 
 The project focused on understanding inheritance, abstract and concrete classes, instance and static variables, and instance and static methods.
+
+![Program Main Screen](https://user-images.githubusercontent.com/69161658/172481511-35b4c0e7-b243-41a4-b831-8d5cbde28d01.png)
