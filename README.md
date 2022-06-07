@@ -1,5 +1,9 @@
-# Butalid_C482_PA--Software-I
-Performance Assessment for WGU C482
+**# Inventory System Project: Software I**
 
-For this course, a JavaFX application with a GUI was created. The graphical interface was developed using Scene Builder to create FXML files. 
-The goal of the project was to create an inventory system that allowed the user to 
+For this course, a JavaFX application with a GUI was created. The project was written in Java and the graphical interface was developed using Scene Builder to create the needed FXML files. 
+
+The goal of the project was to create an inventory system that allowed the user to manually add, remove, and modify various parts and products.
+The program also handles expections by displaying error messages for scenarios specified by the project guidelines. The user is also able to filter parts or products by
+using the provided search bars.
+
+The project focused on understanding inheritance, abstract and concrete classes, instance and static variables, and instance and static methods.
