@@ -1,4 +1,4 @@
-**# Inventory System Project: Software I**
+# **Inventory System Project: Software I**
 
 For this course, a JavaFX application with a GUI was created. The project was written in Java and the graphical interface was developed using Scene Builder to create the needed FXML files. 
 
